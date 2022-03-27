@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Meal from '../Meal/Meal';
 import OrderList from '../OrderList/OrderList';
-import { addToDb } from '../../utilities/fakedb';
+import { addToDb, getStoredCart } from '../../utilities/fakedb';
 import './Restaurant.css';
 
 const Restaurant = () => {
@@ -27,9 +27,33 @@ const Restaurant = () => {
         Read carefully, give it a try. [ Ki ache jibone]
         if  you need help, let us know in the support session
     */
+
+  useEffect(() => {
+    const storedOrder = getStoredCart();
+    const savedOrder = [];
+
+    for (const id in storedOrder) {
+      const addedMeal = meals.find(meal => meal.idMeal === id);
+      if (addedMeal) {
+        const quantity = storedOrder[id];
+        addedMeal.quantity = quantity;
+        savedOrder.push(addedMeal);
+      }
+    }
+    setOrders(savedOrder);
+  }, [meals]);
   const handleAddToOrder = meal => {
     // console.log(meal);
-    const newOrders = [...orders, meal];
+    let newOrders = [];
+    const exists = orders.find(m => m.idMeal === meal.idMeal);
+    if (exists) {
+      const rest = orders.filter(m => m.idMeal !== meal.id);
+      exists.quantity = exists.quantity + 1;
+      newOrders = [...rest, exists];
+    } else {
+      meal.quantity = 1;
+      newOrders = [...orders, meal];
+    }
     setOrders(newOrders);
     addToDb(meal.idMeal);
   };
