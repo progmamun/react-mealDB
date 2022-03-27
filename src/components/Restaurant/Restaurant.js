@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import Meal from '../Meal/Meal';
 import OrderList from '../OrderList/OrderList';
+import { addToDb } from '../../utilities/fakedb';
 import './Restaurant.css';
 
 const Restaurant = () => {
-    const [meals, setMeals] = useState([]);
-    const [orders, setOrders] = useState([]);
+  const [meals, setMeals] = useState([]);
+  const [orders, setOrders] = useState([]);
 
-    useEffect(() => {
-        fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=fish')
-            .then(res => res.json())
-            .then(data => setMeals(data.meals));
-    }, []);
-    /* 
+  useEffect(() => {
+    fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=fish')
+      .then(res => res.json())
+      .then(data => setMeals(data.meals));
+  }, []);
+  /* 
         The above api link or the below method will now work for search. 
         if you want to implement search in this code. 
         1. add a input field 
@@ -26,24 +27,29 @@ const Restaurant = () => {
         Read carefully, give it a try. [ Ki ache jibone]
         if  you need help, let us know in the support session
     */
-    
+  const handleAddToOrder = meal => {
+    // console.log(meal);
+    const newOrders = [...orders, meal];
+    setOrders(newOrders);
+    addToDb(meal.idMeal);
+  };
 
-    return (
-        <div className="restaurant-menu">
-            <div className="meals-container">
-                {
-                    meals.map(meal => <Meal
-                        key={meal.idMeal}
-                        meal={meal}
-                    ></Meal>)
-                }
-            </div>
-            <div className="order-list">
-                <OrderList orders={orders}></OrderList>
-            </div>
-        </div>
-
-    );
+  return (
+    <div className="restaurant-menu">
+      <div className="meals-container">
+        {meals.map(meal => (
+          <Meal
+            key={meal.idMeal}
+            meal={meal}
+            handleAddToOrder={handleAddToOrder}
+          ></Meal>
+        ))}
+      </div>
+      <div className="order-list">
+        <OrderList orders={orders}></OrderList>
+      </div>
+    </div>
+  );
 };
 
 export default Restaurant;
